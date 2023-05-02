@@ -1,0 +1,4 @@
+networkx==3.0
+pandas==2.0.1
+matplotlib==3.7.1
+SciencePlots==2.0.1
