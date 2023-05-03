@@ -53,14 +53,17 @@ void print_pauli_unordered_set_verbose_su4(PSVec pv)
     // Distinguish single paulis by (#pairs, #left paulis, #right paulis)
     for (PSVec::iterator jt = pv.begin(); jt != pv.end(); ++jt)
     {
+        // Count the number of single paulis (IC or CI where C in (X,Y,Z))
         if (((*jt)[0] == 0 & (*jt)[2] == 0) | ((*jt)[1] == 0 & (*jt)[3] == 0))
         {
             s_pauli += 1;
         }
+        // Count the number of equal double paulis (XX, YY, ZZ)
         else if (((*jt)[0] == (*jt)[1]) & ((*jt)[2] == (*jt)[3]))
         {
             d_pauli += 1;
         }
+        // Count the number of distinct double paulis (XY, YZ, etc.)
         else if (((*jt)[0] != (*jt)[2]) | ((*jt)[1] != (*jt)[3]))
         {
             d_dis_pauli += 1;
@@ -89,8 +92,12 @@ int main(int argc, char **argv)
 
     bool add_I;
     iss_add_I >> add_I;
+    if (add_I)
+    {
+        std::cout << "Adding I to Pauli strings" << std::endl;
+    }
     std::vector<std::vector<std::string>> result;
-    std::vector<PauliString> paulistrings;
+    PSVec paulistrings;
     std::vector<std::string> v1;
 
     if (add_I)
@@ -115,7 +122,7 @@ int main(int argc, char **argv)
         }
     }
     std::unordered_set<PSSet, PSHashFunction> all_subalgebras;
-    std::vector<std::vector<PauliString>> all_ps = get_all_subsets(paulistrings);
+    std::vector<PSVec> all_ps = get_all_subsets(paulistrings);
 
     PSSet pset;
     int counts[16];
@@ -123,13 +130,32 @@ int main(int argc, char **argv)
     {
         counts[i] = 0;
     }
-    for (std::vector<std::vector<PauliString>>::iterator itr = all_ps.begin(); itr != all_ps.end(); ++itr)
+    for (std::vector<PSVec>::iterator itr = all_ps.begin(); itr != all_ps.end(); ++itr)
     {
         pset.clear();
-
-        for (std::vector<PauliString>::iterator it = (*itr).begin(); it != (*itr).end(); ++it)
+        // print_pauli_vector(*itr);
+        for (PSVec::iterator it = (*itr).begin(); it != (*itr).end(); ++it)
         {
             pset.insert(*it);
+            // If we add and I, make sure that we add the respective pair as well.
+            if (add_I)
+            {
+                if ((*it)[0] == 0 & (*it)[2] == 0)
+                {
+                    // std::cout << (*it).to_str() << std::endl;
+                    std::string pair_pauli_s = (*it).to_str()[1] + std::string(1, 'I');
+                    // std::cout << pair_pauli_s << std::endl;
+                    pset.insert(PauliString(2, pair_pauli_s));
+
+                }
+                if ((*it)[1] == 0 & (*it)[3] == 0)
+                {
+                    // std::cout << (*it).to_str() << std::endl;
+                    std::string pair_pauli_s = std::string(1, 'I') + (*it).to_str()[0];
+                    // std::cout << pair_pauli_s << std::endl;
+                    pset.insert(PauliString(2, pair_pauli_s));
+                }
+            }
         }
         PSSet temp_pset(pset);
 
