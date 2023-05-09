@@ -73,7 +73,7 @@ bool test_cartesian_product_nested(int nest)
 bool test_all_paulistring_subsets()
 {
     std::vector<std::vector<std::string>> result;
-    std::vector<PauliString> paulistrings;
+    PSVec paulistrings;
     std::vector<std::string> v1;
     v1.push_back("I");
     v1.push_back("X");
@@ -92,7 +92,7 @@ bool test_all_paulistring_subsets()
             paulistrings.push_back(PauliString(2, s));
         }
     }
-    std::vector<std::vector<PauliString>> all_ps = get_all_subsets(paulistrings);
+    std::vector<PSVec> all_ps = get_all_subsets(paulistrings);
     return (all_ps.size() == pow(2, 15) - 1);
 }
 
@@ -104,9 +104,9 @@ bool test_nested_commutator_example_1()
     example.insert(PauliString(2, "YX"));
     example.insert(PauliString(2, "ZX"));
 
-    std::unordered_set<PauliString, PauliString::HashFunction> temp_pset(example);
+    PSSet temp_pset(example);
 
-    for (std::unordered_set<PauliString, PauliString::HashFunction>::iterator it = example.begin(); it != example.end(); ++it)
+    for (PSSet::iterator it = example.begin(); it != example.end(); ++it)
     {
         nested_commutator(*it, temp_pset);
     }
@@ -126,9 +126,9 @@ bool test_nested_commutator_example_2()
     example.insert(PauliString(1, "X"));
     example.insert(PauliString(1, "Y"));
 
-    std::unordered_set<PauliString, PauliString::HashFunction> temp_pset(example);
+    PSSet temp_pset(example);
 
-    for (std::unordered_set<PauliString, PauliString::HashFunction>::iterator it = example.begin(); it != example.end(); ++it)
+    for (PSSet::iterator it = example.begin(); it != example.end(); ++it)
     {
         nested_commutator(*it, temp_pset);
     }
@@ -142,9 +142,9 @@ bool test_nested_commutator_example_3()
     PSSet example;
     example.insert(PauliString(1, "X"));
 
-    std::unordered_set<PauliString, PauliString::HashFunction> temp_pset(example);
+    PSSet temp_pset(example);
 
-    for (std::unordered_set<PauliString, PauliString::HashFunction>::iterator it = example.begin(); it != example.end(); ++it)
+    for (PSSet::iterator it = example.begin(); it != example.end(); ++it)
     {
         nested_commutator(*it, temp_pset);
     }

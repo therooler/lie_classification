@@ -13,8 +13,8 @@ if __name__ == "__main__":
             os.makedirs(f'./data/su{dim}')
         if not os.path.exists(f'./data/su{dim}_I'):
             os.makedirs(f'./data/su{dim}_I')
-    if not os.path.exists(f'./data/figures'):
-        os.makedirs(f'./data/figures')
-    if not os.path.exists(f'./data/tests'):
-        os.makedirs(f'./data/tests')
+    if not os.path.exists(f'./figures'):
+        os.makedirs(f'./figures')
+    if not os.path.exists(f'./tests'):
+        os.makedirs(f'./tests')
     print("Done!")

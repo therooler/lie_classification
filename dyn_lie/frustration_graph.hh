@@ -76,7 +76,8 @@ public:
         }
         myfile << "\n";
         if (print_frustration_graph)
-        {
+        {   
+            build_edges();
             l = 0;
             for (std::set<std::pair<int, int>>::iterator it = edges.begin(); it != edges.end(); ++it)
             {
@@ -103,6 +104,13 @@ private:
     void init()
     {
         size = pv.size();
+        // Build the vertices
+        int i = 0;
+        for (PSVec::iterator it = pv.begin(); it != pv.end(); ++it)
+        {
+            vertices.push_back(Vertex(*it, i));
+            i += 1;
+        }
         adjacency_graph = new int *[size];
         for (unsigned i = 0; i < size; i++)
         {
@@ -112,25 +120,15 @@ private:
                 adjacency_graph[i][j] = 0;
             }
         }
-        build_graph();
     }
 
-    void build_graph()
+    void build_edges()
     {
-        // Build the vertices
-        int i = 0;
-        for (PSVec::iterator it = pv.begin(); it != pv.end(); ++it)
-        {
-            vertices.push_back(Vertex(*it, i));
-            i += 1;
-        }
-
+        // Build the edges
         for (unsigned i = 0; i < size; i++)
         {
-            // (&vertices[i])->first.print_str(false);
             for (unsigned j = 0; j <= i; j++)
             {
-                // std::cout<<i<<","<<j<<std::endl;
                 if (!(comm((&vertices[i])->first, (&vertices[j])->first)))
                 {
                     std::pair<int, int> p((&vertices[i])->second, (&vertices[j])->second);
@@ -138,9 +136,6 @@ private:
                     adjacency_graph[i][j] = 1;
                     adjacency_graph[j][i] = 1;
                 }
-                // else{
-                //     std::cout<< (&vertices[i])->first.to_str()<<" commutes with "<<(&vertices[j])->first.to_str()<<std::endl;
-                // }
             }
         }
     }

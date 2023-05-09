@@ -556,7 +556,7 @@ void get_dynamical_lie_algebra(int N, bool add_I)
         throw std::invalid_argument("N must be larger than 2");
     }
     std::cout << "Getting dynamical Lie algebras of SU(" << sun_dim << ")" << std::endl;
-    std::cout << "Added I = "<<add_I << std::endl;
+    std::cout << "Added I = " << add_I << std::endl;
 
     std::vector<PSVec> new_subalgebras;
     // SU(N) dimension
@@ -681,4 +681,57 @@ void get_dynamical_lie_algebra(int N, bool add_I)
         i += 1;
     }
 }
+
+void get_dynamical_lie_algebra_A_k(int k, int max_N, bool add_I)
+{
+    if ((k < 0) | (k > 22))
+    {
+        throw std::invalid_argument("k must be between 0 and 22");
+    }
+    std::vector<PSVec> subalgebras_su4 = get_unique_algebras_su4(add_I);
+    PSVec A_k(subalgebras_su4[k]);
+    PSVec shifted_subalgebra;
+    int sun_dim;
+    int dim;
+
+    std::cout << "Classification for A_" << k << std::endl;
+    std::cout << "Added I = " << add_I << std::endl;
+    for (int N = 3; N <= max_N; N++)
+    {
+        sun_dim = pow(2, N);
+        dim = pow(4, N);
+        std::cout << "Getting dynamical Lie algebras of SU(" << sun_dim << ")" << std::endl;
+
+        // SU(N) dimension
+        // Count how many algebras of a certain dimension we encounter
+
+        // Add N-2 identities left and right.
+        for (PSVec::iterator vec = (A_k).begin(); vec != (A_k).end(); ++vec)
+        {
+            // std::cout<<(*vec).to_str()<<std::endl;
+            for (unsigned i = 0; i < 2; i++)
+            {   
+                // std::cout<<std::string(i, 'I') + (*vec).to_str() + std::string(N - 2 - i, 'I')<<std::endl;
+                shifted_subalgebra.push_back(PauliString(N, std::string(i, 'I') + (*vec).to_str() + std::string(1 - i, 'I')));
+            }
+        }
+
+        // Create an unordered set for the nested commutator recursion
+        PSSet temp_pset = PSSet((shifted_subalgebra).begin(), (shifted_subalgebra).end());
+        // std::cout<<"dim before = "<<temp_pset.size()<<std::endl;
+        // For each A in the Lie algebra g, calculate [A,g] and add the results to the set
+        for (PSVec::iterator j = (shifted_subalgebra).begin(); j != (shifted_subalgebra).end(); ++j)
+        {
+            nested_commutator(*j, temp_pset);
+        }
+        std::cout << "N = " << N << " - dim = " << temp_pset.size() << std::endl;
+
+        A_k.clear();
+        shifted_subalgebra.clear();
+        // Add the new algebra to a vector
+        A_k = PSVec(temp_pset.begin(), temp_pset.end());
+        // print_pauli_vector(A_k);
+    }
+}
+
 #endif

@@ -112,6 +112,7 @@ void nested_commutator(PauliString ps, PSSet &psset)
         if (!(comm(ps, (*itr)))) // If it does not commute, add the result to the set
         {
             PauliString result = ps * (*itr);
+            // if the results is not in the set, keep going.
             if (!(psset.count(result)))
             {
                 psset.insert(result);
@@ -122,15 +123,19 @@ void nested_commutator(PauliString ps, PSSet &psset)
 }
 
 struct PSHashFunction
+// Hash function for unordered pauli sets.
 {
     size_t operator()(const PSSet &p) const
     {
         std::vector<std::string> string_reps;
+        // Create a vector of string representations of the paulis in the set.
         for (PSSet::iterator it = p.begin(); it != p.end(); ++it)
         {
             string_reps.push_back((*it).to_str());
         }
+        // Sort the list of strings lexicographically.
         std::sort(string_reps.begin(), string_reps.end());
+        // Concatenate the sorted strings into one big string: the hash.
         std::string s = "";
         for (std::vector<std::string>::iterator jt = string_reps.begin(); jt != string_reps.end(); ++jt)
         {
