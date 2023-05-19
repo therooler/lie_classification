@@ -3,7 +3,7 @@ import os
 if __name__ == "__main__":
 
     print("Creating folder structure for data...")
-    dim_list = [4, 8, 16, 32, 64, 128]
+    dim_list = [4, 8, 16, 32, 64, 128, 256]
     if not os.path.exists(f'./data/su4_raw'):
         os.makedirs(f'./data/su4_raw')
     if not os.path.exists(f'./data/su4_I_raw'):

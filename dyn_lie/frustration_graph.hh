@@ -62,6 +62,8 @@ public:
         myfile.open(filename);
         myfile << "dim = " << pv.size() << "\n";
         int l = 0;
+        std::sort(vertices.begin(), vertices.end(), [](const Vertex &lhs, const Vertex &rhs)
+              { return ((&lhs)->first)<((&rhs)->first);});
         for (std::vector<Vertex>::iterator it = vertices.begin(); it != vertices.end(); ++it)
         {
             if (l < (vertices.size() - 1))

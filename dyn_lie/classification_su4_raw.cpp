@@ -15,6 +15,8 @@ void write_pauli_unordered_set_verbose_su4(PSVec pv, std::ofstream &myfile)
     int d_pauli = 0;
     int d_dis_pauli = 0;
     // Distinguish single paulis by (#pairs, #left paulis, #right paulis)
+    std::sort(pv.begin(), pv.end(), [](const PauliString &lhs, const PauliString &rhs)
+              { return lhs<rhs;});
     for (PSVec::iterator jt = pv.begin(); jt != pv.end(); ++jt)
     {
         if (((*jt)[0] == 0 & (*jt)[2] == 0) | ((*jt)[1] == 0 & (*jt)[3] == 0))
@@ -97,30 +99,8 @@ int main(int argc, char **argv)
         std::cout << "Adding I to Pauli strings" << std::endl;
     }
     std::vector<std::vector<std::string>> result;
-    PSVec paulistrings;
-    std::vector<std::string> v1;
+    PSVec paulistrings = get_sun_basis(2, add_I);
 
-    if (add_I)
-    {
-        v1.push_back("I");
-    }
-
-    v1.push_back("X");
-    v1.push_back("Y");
-    v1.push_back("Z");
-    result = cartesian_product<std::string>(v1, v1);
-    for (std::vector<std::vector<std::string>>::iterator itr = result.begin(); itr != result.end(); ++itr)
-    {
-        std::string s;
-        for (std::vector<std::string>::iterator jtr = (*itr).begin(); jtr != (*itr).end(); ++jtr)
-        {
-            s = s + (*jtr);
-        }
-        if (!(s == "II"))
-        {
-            paulistrings.push_back(PauliString(2, s));
-        }
-    }
     std::unordered_set<PSSet, PSHashFunction> all_subalgebras;
     std::vector<PSVec> all_ps = get_all_subsets(paulistrings);
 

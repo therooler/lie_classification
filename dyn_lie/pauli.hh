@@ -163,6 +163,15 @@ public:
         }
         return true;
     }
+
+    bool operator<(const PauliString &other_ps) const
+    {
+    return (*this).to_str() < other_ps.to_str();
+    }
+    bool operator>(const PauliString &other_ps) const
+    {
+    return (*this).to_str() > other_ps.to_str();
+    }
     // Multiplication inplace
     PauliString operator*(const PauliString rhs)
     {
