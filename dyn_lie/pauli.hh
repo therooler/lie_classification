@@ -26,6 +26,7 @@ public:
         {
             numarr[i] = 0;
         }
+        
     }
     // Overload initializer with string
     PauliString(int n, std::string str) : n(n)
