@@ -20,7 +20,9 @@ def dim_sp(x):
     return x * (x + 1) // 2
 
 
-def plot_dimensions_annotated(add_I=False):
+def plot_dimensions_annotated(add_I=False, closed=False):
+    data_path = f'./data/{"closed" if closed else "open"}/'
+
     Nlist_2 = [4, 8, 16, 32, 64, 128]
     Nlist = [int(np.log2(x)) for x in Nlist_2]
     fig, axs = plt.subplots(1, 1)
@@ -34,9 +36,9 @@ def plot_dimensions_annotated(add_I=False):
     colors_blues = [blues_cm(0.2 + 0.8 * i / NUM_BLUES) for i in range(NUM_BLUES)]
     for N in Nlist_2:
         if add_I:
-            directory = f'./data/su{N}_I'
+            directory = data_path + f'su{N}_I'
         else:
-            directory = f'./data/su{N}'
+            directory = data_path + f'su{N}'
         df = pd.read_csv(directory + '/' + 'meta.txt', delimiter=',')
         axs.scatter([N] * len(df['dim'].values), df['dim'].values, color='black')
 
@@ -81,15 +83,16 @@ def plot_dimensions_annotated(add_I=False):
     # axs.set_title(
     #     f'Identification of subalgebras of 1D translational invariant '
     #     f'Hamiltonians {"(with I)" if add_I else ""}')
-    fig.savefig(f'./figures/scaling_annotated{"_I" if add_I else ""}.pdf')
-    fig.savefig(f'./figures/scaling_annotated{"_I" if add_I else ""}.png')
+    fig.savefig(f'./figures/{"closed" if closed else "open"}/scaling_annotated{"_I" if add_I else ""}.pdf')
+    fig.savefig(f'./figures/{"closed" if closed else "open"}/scaling_annotated{"_I" if add_I else ""}.png')
 
     if SHOW:
         plt.show()
     plt.close()
 
 
-def plot_dimensions_per_set(add_I=False):
+def plot_dimensions_per_set(add_I=False, closed=True):
+    data_path = f'./data/{"closed" if closed else "open"}/'
     Nlist_2 = [4, 8, 16, 32, 64, 128]
     Nlist = [int(np.log2(x)) for x in Nlist_2]
     fig, axs = plt.subplots(1, 1)
@@ -102,14 +105,14 @@ def plot_dimensions_per_set(add_I=False):
     for i in range(NUM_ALGEBRAS):
         for j, N in enumerate(Nlist_2):
             if add_I:
-                directory = f'./data/su{N}_I'
+                directory = data_path + f'su{N}_I'
             else:
-                directory = f'./data/su{N}'
+                directory = data_path + f'su{N}'
             with open(directory + '/' + f'pauliset_{i}.txt', 'r') as f:
                 s = f.readline()
                 s = s.strip('\n')
             dims[i, j] = int(s.split(" ")[-1])
-        axs.plot(Nlist_2, dims[i, :], label=rf'$A_{{i}}$', marker='.', color=colors[i], markersize=15, linewidth=2)
+        axs.plot(Nlist_2, dims[i, :], label=rf'$A_{{{i}}}$', marker='.', color=colors[i], markersize=15, linewidth=2)
     axs.legend()
     axs.set_xlabel(r'$2^N$')
     axs.set_ylabel('Dim')
@@ -120,8 +123,8 @@ def plot_dimensions_per_set(add_I=False):
     # axs.set_title(
     #     f'Dimensions of all {NUM_ALGEBRAS} subalgebras of 1D translational invariant '
     #     f'Hamiltonians {"(with I)" if add_I else ""}')
-    fig.savefig(f'./figures/scaling_traced{"_I" if add_I else ""}.pdf')
-    fig.savefig(f'./figures/scaling_traced{"_I" if add_I else ""}.png')
+    fig.savefig(f'./figures/{"closed" if closed else "open"}/scaling_traced{"_I" if add_I else ""}.pdf')
+    fig.savefig(f'./figures/{"closed" if closed else "open"}/scaling_traced{"_I" if add_I else ""}.png')
 
     if SHOW:
         plt.show()
@@ -130,8 +133,9 @@ def plot_dimensions_per_set(add_I=False):
 
 if __name__ == "__main__":
     print("Creating figures...")
-    plot_dimensions_annotated(False)
-    plot_dimensions_per_set(False)
-    plot_dimensions_annotated(True)
-    plot_dimensions_per_set(True)
+    for closed in [True, False]:
+        for add_I in [True, False]:
+            plot_dimensions_annotated(add_I, closed)
+            plot_dimensions_per_set(add_I, closed)
+
     print("Done!")

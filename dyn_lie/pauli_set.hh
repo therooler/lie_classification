@@ -128,7 +128,7 @@ void nested_product(PauliString ps, PSSet &psset)
     for (PSSet::iterator itr = psset.begin(); itr != psset.end(); ++itr)
     {
         PauliString result = ps * (*itr);
-        if (std::find(psset.begin(), psset.end(), result)==psset.end()) // If it does not commute, add the result to the set
+        if (std::find(psset.begin(), psset.end(), result) == psset.end()) // If it does not commute, add the result to the set
         {
             psset.insert(result);
             nested_product(result, psset);
@@ -200,24 +200,33 @@ PSVec get_sun_basis(int N, bool add_I = true)
     return paulistrings;
 }
 
-std::string get_pauliset_filename(int N, bool add_I)
+std::string get_pauliset_filename(int N, bool add_I, bool closed=false)
 {
     int dim = pow(2, N);
     std::string filename;
-    if (add_I)
+    std::string open_closed_path;
+    if (closed)
     {
-        filename = "./data/su" + std::to_string(dim) + "_I/";
+        open_closed_path = "./data/closed/su";
     }
     else
     {
-        filename = "./data/su" + std::to_string(dim) + "/";
+        open_closed_path = "./data/open/su";
+    }
+    if (add_I)
+    {
+        filename = open_closed_path + std::to_string(dim) + "_I/";
+    }
+    else
+    {
+        filename = open_closed_path + std::to_string(dim) + "/";
     }
     return filename;
 };
 
-PSVec load_pauliset(int N, int k, bool add_I)
+PSVec load_pauliset(int N, int k, bool add_I, bool closed)
 {
-    std::string filename = get_pauliset_filename(N, add_I) + "pauliset_" + std::to_string(k) + ".txt";
+    std::string filename = get_pauliset_filename(N, add_I, closed) + "pauliset_" + std::to_string(k) + ".txt";
     ;
     std::ifstream file(filename); // replace "example.txt" with your file name
     if (file.good() && file.peek() != std::ifstream::traits_type::eof())
@@ -249,9 +258,9 @@ PSVec load_pauliset(int N, int k, bool add_I)
     return entries;
 };
 
-PSVec get_commutant(int N, int k, bool add_I)
+PSVec get_commutant(int N, int k, bool add_I, bool closed)
 {
-    PSVec A_k = load_pauliset(N, k, add_I);
+    PSVec A_k = load_pauliset(N, k, add_I, closed);
     PSVec sun = get_sun_basis(N);
     PSVec commutant;
     bool commutes;

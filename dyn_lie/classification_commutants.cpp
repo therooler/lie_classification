@@ -11,28 +11,33 @@
 
 int main(int argc, char **argv)
 {
-    if (!(argc == 3))
+    if (!(argc == 4))
     {
-        throw std::invalid_argument("Expected 2 arguments for classification: `N` and `add_I`");
+        throw std::invalid_argument("Expected 2 arguments for classification: `N`, `add_I` and `closed`");
     }
     std::istringstream iss_N(argv[1]);
     std::istringstream iss_add_I(argv[2]);
+    std::istringstream iss_closed(argv[3]);
+
     int N;
     iss_N >> N;
-    std::cout<<"Getting su("<<pow(2,N)<<") commutants \n";
+    std::cout << "Getting su(" << pow(2, N) << ") commutants \n";
     bool add_I;
     iss_add_I >> add_I;
+    bool closed;
+    iss_closed >> closed;
+
     PSVec commutant;
     std::string filename;
     std::ofstream myfile;
-    for (unsigned k= 0; k < 23; k++)
+    for (unsigned k = 0; k < 23; k++)
     {
-        commutant = get_commutant(N, k, add_I);
-        filename = get_pauliset_filename(N, add_I) + "commutant_" + std::to_string(k) + ".txt"; 
+        commutant = get_commutant(N, k, add_I, closed);
+        filename = get_pauliset_filename(N, add_I, closed) + "commutant_" + std::to_string(k) + ".txt";
         myfile.open(filename);
         int l = 0;
         std::sort(commutant.begin(), commutant.end(), [](const PauliString &lhs, const PauliString &rhs)
-              { return lhs<rhs;});
+                  { return lhs < rhs; });
         for (PSVec::iterator it = commutant.begin(); it != commutant.end(); ++it)
         {
             if (l < (commutant.size() - 1))

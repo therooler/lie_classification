@@ -11,15 +11,17 @@
 
 int main(int argc, char **argv)
 {
-    if (!(argc == 4))
+    if (!(argc == 5))
     {
-        throw std::invalid_argument("Expected 2 arguments for classification: `N` and `add_I`");
+        throw std::invalid_argument("Expected 4 arguments for classification: `k`, `N`, `add_I` and `closed`");
     }
+    std::istringstream iss_k(argv[1]);
+    std::istringstream iss_N(argv[2]);
+    std::istringstream iss_add_I(argv[3]);
+    std::istringstream iss_closed(argv[4]);
 
-    std::istringstream iss_N(argv[1]);
-    std::istringstream iss_add_I(argv[2]);
-    std::istringstream iss_closed(argv[3]);
-
+    int k;
+    iss_k >> k;
     int N;
     iss_N >> N;
     bool add_I;
@@ -27,8 +29,7 @@ int main(int argc, char **argv)
     bool closed;
     iss_closed >> closed;
 
-    get_dynamical_lie_algebra(N, add_I, closed);
-    
+    get_commutators_A_k(k, N, add_I, closed);
 
     return 0;
 }

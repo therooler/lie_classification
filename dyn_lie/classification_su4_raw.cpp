@@ -16,7 +16,7 @@ void write_pauli_unordered_set_verbose_su4(PSVec pv, std::ofstream &myfile)
     int d_dis_pauli = 0;
     // Distinguish single paulis by (#pairs, #left paulis, #right paulis)
     std::sort(pv.begin(), pv.end(), [](const PauliString &lhs, const PauliString &rhs)
-              { return lhs<rhs;});
+              { return lhs < rhs; });
     for (PSVec::iterator jt = pv.begin(); jt != pv.end(); ++jt)
     {
         if (((*jt)[0] == 0 & (*jt)[2] == 0) | ((*jt)[1] == 0 & (*jt)[3] == 0))
@@ -86,14 +86,19 @@ void print_pauli_unordered_set_verbose_su4(PSVec pv)
 
 int main(int argc, char **argv)
 {
-    if (!(argc == 2))
+    if (!(argc == 3))
     {
-        throw std::invalid_argument("Expected 1 arguments for classification: `add_I`");
+        throw std::invalid_argument("Expected 2 arguments for classification: `add_I` and `closed`");
     }
     std::istringstream iss_add_I(argv[1]);
+    std::istringstream iss_closed(argv[2]);
 
     bool add_I;
+    bool closed;
+
     iss_add_I >> add_I;
+    iss_closed >> closed;
+
     if (add_I)
     {
         std::cout << "Adding I to Pauli strings" << std::endl;
@@ -126,7 +131,6 @@ int main(int argc, char **argv)
                     std::string pair_pauli_s = (*it).to_str()[1] + std::string(1, 'I');
                     // std::cout << pair_pauli_s << std::endl;
                     pset.insert(PauliString(2, pair_pauli_s));
-
                 }
                 if ((*it)[1] == 0 & (*it)[3] == 0)
                 {
@@ -180,14 +184,11 @@ int main(int argc, char **argv)
               { return lhs.size() < rhs.size(); });
 
     std::ofstream myfile;
-    if (add_I)
-    {
-        myfile.open("./data/su4_I_raw/all_unique_su4.txt");
-    }
-    else
-    {
-        myfile.open("./data/su4_raw/all_unique_su4.txt");
-    }
+    std::string filename = get_pauliset_filename(2, add_I, closed);
+    // Pop `/` character
+    filename.pop_back();
+    myfile.open(filename + "_raw/all_unique_su4.txt");
+    
     myfile << "{<the set>} - <size of the set> - (<#single paulis>,<#double equal paulis>,<#double different paulis>)" << std::endl;
 
     for (std::vector<PSVec>::iterator kt = ps_vector.begin(); kt != ps_vector.end(); ++kt)

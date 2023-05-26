@@ -547,7 +547,7 @@ std::vector<PSVec> get_unique_algebras_su4(bool add_I = false)
     return ps_vec;
 }
 
-void get_dynamical_lie_algebra(int N, bool add_I)
+void get_dynamical_lie_algebra(int N, bool add_I, bool closed)
 {
     int sun_dim = pow(2, N);
     std::vector<PSVec> subalgebras_su4 = get_unique_algebras_su4(add_I);
@@ -592,6 +592,10 @@ void get_dynamical_lie_algebra(int N, bool add_I)
                 {
                     shifted_vec.push_back(PauliString(N, std::string(i, 'I') + (*vec).to_str() + std::string(N - 2 - i, 'I')));
                 }
+                if (closed)
+                {
+                    shifted_vec.push_back(PauliString(N, (*vec).to_str()[1] + std::string(N - 2, 'I') + (*vec).to_str()[0]));
+                }
             }
             // print_pauli_vector(shifted_vec);
             subalgebras_shifted_N.push_back(shifted_vec);
@@ -628,14 +632,9 @@ void get_dynamical_lie_algebra(int N, bool add_I)
     }
     // Write meta data to file that counts all the seen dimensions
     std::ofstream myfile;
-    if (add_I)
-    {
-        myfile.open("./data/su" + std::to_string(sun_dim) + "_I/meta.txt");
-    }
-    else
-    {
-        myfile.open("./data/su" + std::to_string(sun_dim) + "/meta.txt");
-    }
+    std::string filename = get_pauliset_filename(N, add_I, closed);
+    myfile.open(filename + "meta.txt");
+
     myfile << "dim"
            << ","
            << "count" << '\n';
@@ -650,12 +649,13 @@ void get_dynamical_lie_algebra(int N, bool add_I)
 
     // obtain frustration graphs
     int k = 0;
-    std::string filename;
+
     for (std::vector<PSVec>::iterator kt = new_subalgebras.begin(); kt != new_subalgebras.end(); ++kt)
     {
         // print_pauli_vector(*kt);
         FrustrationGraph fg(*kt);
-        filename = get_pauliset_filename(N, add_I) + "pauliset_" + std::to_string(k) + ".txt";
+        filename = get_pauliset_filename(N, add_I, closed) + "pauliset_" + std::to_string(k) + ".txt";
+        std::cout << filename << std::endl;
         // Only print frustration graph to file for small number of qubits
         if ((N == 3) | (N == 4))
         {
@@ -669,7 +669,7 @@ void get_dynamical_lie_algebra(int N, bool add_I)
     }
 }
 
-void get_dynamical_lie_algebra_A_k(int k, int max_N, bool add_I)
+void get_dynamical_lie_algebra_A_k(int k, int max_N, bool add_I, bool closed)
 {
     if ((k < 0) | (k > 22))
     {
@@ -701,6 +701,10 @@ void get_dynamical_lie_algebra_A_k(int k, int max_N, bool add_I)
                 // std::cout<<std::string(i, 'I') + (*vec).to_str() + std::string(N - 2 - i, 'I')<<std::endl;
                 shifted_subalgebra.push_back(PauliString(N, std::string(i, 'I') + (*vec).to_str() + std::string(1 - i, 'I')));
             }
+            if (closed)
+            {
+                shifted_subalgebra.push_back(PauliString(N, (*vec).to_str()[1] + std::string(N - 2, 'I') + (*vec).to_str()[0]));
+            }
         }
 
         // Create an unordered set for the nested commutator recursion
@@ -720,8 +724,102 @@ void get_dynamical_lie_algebra_A_k(int k, int max_N, bool add_I)
         // print_pauli_vector(A_k);
     }
 }
+template <typename T>
+int get_index(std::vector<T> v, T K)
+{
+    auto it = find(v.begin(), v.end(), K);
 
-void get_associative_algebra(int N, bool add_I)
+    // If element was found
+    if (it != v.end())
+    {
+
+        // calculating the index
+        // of K
+        return it - v.begin();
+    }
+    else
+    {
+        // If the element is not
+        // present in the vector
+        return -1;
+    }
+}
+
+void get_commutators_A_k(int k, int N, bool add_I, bool closed)
+{
+    if ((k < 0) | (k > 22))
+    {
+        throw std::invalid_argument("k must be between 0 and 22");
+    }
+    PSVec su4 = get_sun_basis(N - 1, true);
+    PSVec A_k = load_pauliset(N, k, add_I, closed);
+    print_pauli_vector(A_k);
+    PSVec shifted_su4;
+
+    int sun_dim;
+    int dim;
+
+    std::cout << "Classification for A_" << k << std::endl;
+    std::cout << "Added I = " << add_I << std::endl;
+    std::cout << "Closed = " << closed << std::endl;
+
+    sun_dim = pow(2, N);
+    dim = pow(4, N);
+    std::cout << "Getting dynamical Lie algebras of SU(" << sun_dim << ")" << std::endl;
+
+    // SU(N) dimension
+    // Count how many algebras of a certain dimension we encounter
+    for (PSVec::iterator vec = (su4).begin(); vec != (su4).end(); ++vec)
+    {
+        shifted_su4.push_back(PauliString(N, std::string(1, 'I') + (*vec).to_str()));
+    }
+    PSVec commutators(shifted_su4.begin(), shifted_su4.end());
+    PSVec commutators_temp(commutators);
+    PauliString result(N);
+    std::vector<int> counts(commutators.size(), 1);
+    int index;
+    for (unsigned depth = 0; depth < 10; depth++)
+    {
+        for (PSVec::iterator Pk = (A_k).begin(); Pk != (A_k).end(); ++Pk)
+        {
+            commutators = commutators_temp;
+            for (PSVec::iterator Q = (commutators).begin(); Q != (commutators).end(); ++Q)
+
+            {
+                if (!(comm(*Pk, *Q))) // If it does not commute, add the result to the set
+                {
+                    result = (*Pk) * (*Q);
+                    index = get_index(commutators_temp, result);
+                    if (index == -1)
+                    {
+                        commutators_temp.push_back(result);
+                        counts.push_back(1);
+                    }
+                    else
+                    {
+                        counts[index] += 1;
+                    }
+                }
+            }
+        }
+    }
+    std::cout << "number: " << commutators_temp.size() << std::endl;
+    std::sort(commutators_temp.begin(), commutators_temp.end(), [](const PauliString &lhs, const PauliString &rhs)
+              { return lhs < rhs; });
+    std::ofstream myfile;
+    std::string filename = get_pauliset_filename(N, add_I, closed);
+    std::cout << filename;
+    myfile.open(filename + "A_" + std::to_string(k) + "(" + std::to_string(N) + ")_commutators" + ".txt");
+    myfile << "number:" << '\n';
+    for (unsigned i = 0; i < commutators_temp.size(); i++)
+    {
+        std::cout << commutators_temp[i].to_str() << std::endl;
+        myfile << commutators_temp[i].to_str() << std::endl;
+    }
+    print_pauli_vector(commutators_temp);
+}
+
+void get_associative_algebra(int N, bool add_I, bool closed)
 {
     int sun_dim = pow(2, N);
     std::vector<PSVec> subalgebras_su4 = get_unique_algebras_su4(add_I);
@@ -732,6 +830,7 @@ void get_associative_algebra(int N, bool add_I)
     }
     std::cout << "Getting dynamical Lie algebras of SU(" << sun_dim << ")" << std::endl;
     std::cout << "Added I = " << add_I << std::endl;
+    std::cout << "Closed = " << closed << std::endl;
 
     std::vector<PSVec> new_subalgebras;
     // SU(N) dimension
@@ -754,6 +853,10 @@ void get_associative_algebra(int N, bool add_I)
             for (unsigned i = 0; i < (N - 1); i++)
             {
                 shifted_vec.push_back(PauliString(N, std::string(i, 'I') + (*vec).to_str() + std::string(N - 2 - i, 'I')));
+            }
+            if (closed)
+            {
+                shifted_vec.push_back(PauliString(N, (*vec).to_str()[1] + std::string(N - 2, 'I') + (*vec).to_str()[0]));
             }
         }
         // print_pauli_vector(shifted_vec);
@@ -792,7 +895,7 @@ void get_associative_algebra(int N, bool add_I)
 
     // Write meta data to file that counts all the seen dimensions
     std::ofstream myfile;
-    std::string filename = get_pauliset_filename(N, add_I);
+    std::string filename = get_pauliset_filename(N, add_I, closed);
     myfile.open(filename + "meta_associative.txt");
     myfile << "dim"
            << ","
@@ -811,7 +914,7 @@ void get_associative_algebra(int N, bool add_I)
         myfile << "dim = " << new_subalgebras[k].size() << "\n";
         int l = 0;
         std::sort(new_subalgebras[k].begin(), new_subalgebras[k].end(), [](const PauliString &lhs, const PauliString &rhs)
-              { return lhs<rhs;});
+                  { return lhs < rhs; });
         for (PSVec::iterator it = new_subalgebras[k].begin(); it != new_subalgebras[k].end(); ++it)
         {
             if (l < (new_subalgebras[k].size() - 1))

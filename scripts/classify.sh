@@ -4,12 +4,19 @@ g++ -std=c++11 -O3 ./dyn_lie/classification_su4_raw.cpp -o ./dyn_lie/classify_su
 g++ -std=c++11 -O3 ./dyn_lie/classification_sun.cpp -o ./dyn_lie/classify_sun.out
 
 # Get the large set of su4 algebras
-./dyn_lie/classify_su4_raw.out 0
-./dyn_lie/classify_su4_raw.out 1
-
+./dyn_lie/classify_su4_raw.out 0 0
+./dyn_lie/classify_su4_raw.out 1 0
+./dyn_lie/classify_su4_raw.out 0 1 
+./dyn_lie/classify_su4_raw.out 1 1
 for N in 2 3 4 5 6 7 8
 do
-    ./dyn_lie/classify_sun.out $N 0
-    ./dyn_lie/classify_sun.out $N 1
+    # # Open boundary without I
+    # ./dyn_lie/classify_sun.out $N 0 0
+    # # Open boundary with I
+    # ./dyn_lie/classify_sun.out $N 1 0
+    # Closed boundary without I
+    ./dyn_lie/classify_sun.out $N 0 1
+    # Closed boundary with I
+    ./dyn_lie/classify_sun.out $N 1 1
 done
 

@@ -4,17 +4,19 @@ if __name__ == "__main__":
 
     print("Creating folder structure for data...")
     dim_list = [4, 8, 16, 32, 64, 128, 256]
-    if not os.path.exists(f'./data/su4_raw'):
-        os.makedirs(f'./data/su4_raw')
-    if not os.path.exists(f'./data/su4_I_raw'):
-        os.makedirs(f'./data/su4_I_raw')
-    for dim in dim_list:
-        if not os.path.exists(f'./data/su{dim}'):
-            os.makedirs(f'./data/su{dim}')
-        if not os.path.exists(f'./data/su{dim}_I'):
-            os.makedirs(f'./data/su{dim}_I')
-    if not os.path.exists(f'./figures'):
-        os.makedirs(f'./figures')
-    if not os.path.exists(f'./tests'):
-        os.makedirs(f'./tests')
+    for open_or_closed in ["open", "closed"]:
+        prepend = f'./data/{open_or_closed}'
+        if not os.path.exists(prepend + '/su4_raw'):
+            os.makedirs(prepend + '/su4_raw')
+        if not os.path.exists(prepend+'/su4_I_raw'):
+            os.makedirs(prepend + '/su4_I_raw')
+        for dim in dim_list:
+            if not os.path.exists(prepend + f'/su{dim}'):
+                os.makedirs(prepend + f'/su{dim}')
+            if not os.path.exists(prepend + f'/su{dim}_I'):
+                os.makedirs(prepend + f'/su{dim}_I')
+        if not os.path.exists(f'./figures/{open_or_closed}'):
+            os.makedirs(f'./figures/{open_or_closed}')
+        if not os.path.exists(f'./tests'):
+            os.makedirs(f'./tests')
     print("Done!")
