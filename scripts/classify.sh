@@ -11,9 +11,9 @@ g++ -std=c++11 -O3 ./dyn_lie/classification_sun.cpp -o ./dyn_lie/classify_sun.ou
 for N in 2 3 4 5 6 7 8
 do
     # # Open boundary without I
-    # ./dyn_lie/classify_sun.out $N 0 0
-    # # Open boundary with I
-    # ./dyn_lie/classify_sun.out $N 1 0
+    ./dyn_lie/classify_sun.out $N 0 0
+    # Open boundary with I
+    ./dyn_lie/classify_sun.out $N 1 0
     # Closed boundary without I
     ./dyn_lie/classify_sun.out $N 0 1
     # Closed boundary with I
