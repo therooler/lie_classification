@@ -23,7 +23,7 @@ def dim_sp(x):
 def plot_dimensions_annotated(add_I=False, closed=False):
     data_path = f'./data/{"closed" if closed else "open"}/'
 
-    Nlist_2 = [4, 8, 16, 32, 64, 128]
+    Nlist_2 = [4, 8, 16, 32, 64, 128, 256]
     Nlist = [int(np.log2(x)) for x in Nlist_2]
     fig, axs = plt.subplots(1, 1)
     fig.set_size_inches(6, 6)
@@ -93,7 +93,7 @@ def plot_dimensions_annotated(add_I=False, closed=False):
 
 def plot_dimensions_per_set(add_I=False, closed=True):
     data_path = f'./data/{"closed" if closed else "open"}/'
-    Nlist_2 = [4, 8, 16, 32, 64, 128]
+    Nlist_2 = [4, 8, 16, 32, 64, 128, 256]
     Nlist = [int(np.log2(x)) for x in Nlist_2]
     fig, axs = plt.subplots(1, 1)
     fig.set_size_inches(6, 6)

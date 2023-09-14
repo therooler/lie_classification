@@ -1,4 +1,10 @@
+
 networkx==3.0
 pandas==2.0.1
 matplotlib==3.7.1
 SciencePlots==2.0.1
+pennylane==0.31.0
+jax==0.4.13
+jaxlib==0.4.13
+qutip==4.7.2
+optax==0.1.5
